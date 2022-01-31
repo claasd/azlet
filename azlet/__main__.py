@@ -12,8 +12,9 @@ def execute():
     parser.add_argument("--dns-zone", "-d", help="name of the dns-zone")
     parser.add_argument("--dns-subscription", "-s", help="subscription of the dns zone")
     parser.add_argument("--dns-resource-group", "-g", help="resource-group of the dns zone")
-    parser.add_argument("--prefix", "-p", help="name of the certificate prefix (only ofr create operation)",
+    parser.add_argument("--prefix", "-p", help="name of the certificate prefix (only for create operation)",
                         required=False)
+    parser.add_argument("--tags", "-t", nargs="*", action = keyvalue, help="tags of the certificate", default=False)
     parser.add_argument("--force-creation",
                         action='store_true',
                         help="Try to create a new certificate even if a certificate already exists in the key vault",
@@ -52,7 +53,21 @@ def execute():
     if args.operation == "create":
         if not args.prefix:
             parser.error("--prefix is required for command 'create'")
-        bot.create(args.prefix, args.force_creation)
+        if args.tags:
+            bot.create(args.prefix, args.force_creation, args.tags)
+        else:
+            bot.create(args.prefix, args.force_creation)
+
+
+class keyvalue(argparse.Action):
+    def __call__( self , parser, namespace, values, option_string = None):
+        setattr(namespace, self.dest, dict())
+          
+        for value in values:
+            # split it into key and value
+            key, value = value.split('=')
+            # assign into dictionary
+            getattr(namespace, self.dest)[key] = value
 
 
 if __name__ == "__main__":
