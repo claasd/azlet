@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name='azlet',
-    version='0.5.0',
+    version='0.8.0',
     packages=['azlet', 'azlet.dns_providers'],
     url='https://github.com/claasd/azlet',
     license='MIT',

@@ -21,6 +21,8 @@ def clean_name(domain: str) -> str:
     name = re.sub('[^0-9a-zA-Z]+', '-', name)
     if domain.startswith("*"):
         name = "star-" + name
+    if domain.startswith("*"):
+        name = "direct-" + name
     return name
 
 
@@ -96,6 +98,8 @@ class AzertBot:
 
     def create(self, prefix: str, force=False, tags=None):
         domain_name = prefix + "." + self.dns_class.zone
+        if prefix == "@":
+            domain_name = self.dns_class.zone
         if not force:
             self.check_exists(domain_name)
         self.create_certificate(domain_name, tags)
@@ -116,7 +120,6 @@ class AzertBot:
             if not str(domain_name).endswith(self.dns_class.zone):
                 continue
             logging.info(f"Starting renewal ...")
-
             self.create_certificate(domain_name=domain_name, tags=props.tags)
 
     def rotate_domain(self, prefix: str):

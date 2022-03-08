@@ -12,7 +12,7 @@ def execute():
     parser.add_argument("--dns-zone", "-d", help="name of the dns-zone")
     parser.add_argument("--dns-subscription", "-s", help="subscription of the dns zone")
     parser.add_argument("--dns-resource-group", "-g", help="resource-group of the dns zone")
-    parser.add_argument("--prefix", "-p", help="name of the certificate prefix (only for create operation)",
+    parser.add_argument("--prefix", "-p", help="name of the certificate prefix (only for create operation) Use '@' to create a certificate for the root domain",
                         required=False)
     parser.add_argument("--tags", "-t", nargs="*", action = keyvalue, help="tags of the certificate", default=False)
     parser.add_argument("--force-creation",
