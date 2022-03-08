@@ -1,9 +1,11 @@
 import argparse
+import logging
 
 from azure.identity import DefaultAzureCredential
 
 from azlet.azertbot import AzertBot
-
+logging.basicConfig(level=logging.INFO)
+logging.getLogger('azure').setLevel(logging.WARN)
 
 def execute():
     parser = argparse.ArgumentParser()

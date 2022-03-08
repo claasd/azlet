@@ -76,7 +76,8 @@ class AzertBot:
             provider=self.dns_class,
             account=account,
             is_new_acct=account_is_new,
-            cert_key=AcmeKey.create("rsa3072")
+            cert_key=AcmeKey.create("rsa3072"),
+            LOG_LEVEL="WARNING"
         )
         if account_is_new:
             client.acme_register()
