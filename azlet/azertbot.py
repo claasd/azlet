@@ -21,7 +21,7 @@ def clean_name(domain: str) -> str:
     name = re.sub('[^0-9a-zA-Z]+', '-', name)
     if domain.startswith("*"):
         name = "star-" + name
-    if domain.startswith("*"):
+    if domain.startswith("@"):
         name = "direct-" + name
     return name
 
@@ -50,8 +50,10 @@ class AzertBot:
         self.secrets_client.set_secret("acme-account-key2", account.to_pem().decode('utf-8'))
         self.acme_account = account
 
-    def store_pfx(self, domain: str, cert: str, key: AcmeKey, tags=None):
-        name = clean_name(domain)
+    def store_pfx(self, domain: str, cert: str, key: AcmeKey, tags=None, name=None):
+        if not name:
+            name = clean_name(domain)
+
         all_certs = [OpenSSL.crypto.load_certificate(OpenSSL.crypto.FILETYPE_PEM, pem.as_bytes()) for pem in
                      pem.parse(cert.encode('utf-8'))]
         key_pem = OpenSSL.crypto.load_privatekey(OpenSSL.crypto.FILETYPE_PEM, key.to_pem())
@@ -65,7 +67,7 @@ class AzertBot:
         else:
             self.certificate_client.import_certificate(name, pfx_cert)
 
-    def create_certificate(self, domain_name: str, tags=None):
+    def create_certificate(self, domain_name: str, tags=None, secret_name=None):
         account = self.account()
         account_is_new = False
         if account is None:
@@ -86,7 +88,7 @@ class AzertBot:
         cert = client.get_certificate()
         key = client.cert_key
 
-        self.store_pfx(domain_name, cert, key, tags)
+        self.store_pfx(domain_name, cert, key, tags, name=secret_name)
 
     def check_exists(self, domain_name):
         name = clean_name(domain_name)
@@ -121,7 +123,7 @@ class AzertBot:
             if not str(domain_name).endswith(self.dns_class.zone):
                 continue
             logging.info(f"Starting renewal ...")
-            self.create_certificate(domain_name=domain_name, tags=props.tags)
+            self.create_certificate(domain_name=domain_name, tags=props.tags, secret_name=props.name)
 
     def rotate_domain(self, prefix: str):
         domain_name = prefix + '.' + self.dns_class.zone
