@@ -1,6 +1,6 @@
 import pem
 import re
-from typing import Optional
+from typing import List, Optional
 import logging
 
 import OpenSSL
@@ -67,14 +67,15 @@ class AzertBot:
         else:
             self.certificate_client.import_certificate(name, pfx_cert)
 
-    def create_certificate(self, domain_name: str, tags=None, secret_name=None):
+    def create_certificate(self, domain_names: List[str], tags=None, secret_name=None):
         account = self.account()
         account_is_new = False
         if account is None:
             account = AcmeAccount.create("rsa3072")
             account_is_new = True
         client = sewer.client.Client(
-            domain_name=domain_name,
+            domain_name=domain_names[0],
+            domain_alt_names=domain_names[1:],
             provider=self.dns_class,
             account=account,
             is_new_acct=account_is_new,
@@ -88,7 +89,7 @@ class AzertBot:
         cert = client.get_certificate()
         key = client.cert_key
 
-        self.store_pfx(domain_name, cert, key, tags, name=secret_name)
+        self.store_pfx(domain_names[0], cert, key, tags, name=secret_name)
 
     def check_exists(self, domain_name):
         name = clean_name(domain_name)
@@ -99,13 +100,11 @@ class AzertBot:
         except ResourceNotFoundError:
             pass
 
-    def create(self, prefix: str, force=False, tags=None):
-        domain_name = prefix + "." + self.dns_class.zone
-        if prefix == "@":
-            domain_name = self.dns_class.zone
+    def create(self, prefix: List[str], force=False, tags=None):
+        domain_names = [ p + "." + self.dns_class.zone if p != "@" else self.dns_class.zone for p in prefix ]
         if not force:
-            self.check_exists(domain_name)
-        self.create_certificate(domain_name, tags)
+            self.check_exists(domain_names[0])
+        self.create_certificate(domain_names, tags)
         
 
     def rotate(self, threshold: int = 14):
@@ -119,11 +118,13 @@ class AzertBot:
                 continue
             cert = self.certificate_client.get_certificate(props.name)
             domain_name = cert.policy.subject.replace("CN=", "")
+            subject_alt_names = [ san for san in (cert.policy.san_dns_names or []) if san != domain_name ]
+            logging.info(f'Certificate {props.name} has subject {domain_name} and SANs {subject_alt_names}')
             logging.info(f'Checking subject: "{domain_name}" should end with "{self.dns_class.zone}"')
             if not str(domain_name).endswith(self.dns_class.zone):
                 continue
             logging.info(f"Starting renewal ...")
-            self.create_certificate(domain_name=domain_name, tags=props.tags, secret_name=props.name)
+            self.create_certificate(domain_names=[domain_name]+subject_alt_names, tags=props.tags, secret_name=props.name)
 
     def rotate_domain(self, prefix: str):
         domain_name = prefix + '.' + self.dns_class.zone
@@ -132,6 +133,6 @@ class AzertBot:
             cert = self.certificate_client.get_certificate(name)
             # is None or dict of tags
             tags = cert.properties.tags
-            self.create_certificate(domain_name=domain_name, tags=tags)
+            self.create_certificate(domain_names=[domain_name], tags=tags)
         except:
             logging.error("Cannot find certificate to renew.")
