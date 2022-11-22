@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name='azlet',
-    version='0.9.0',
+    version='0.9.1',
     packages=['azlet', 'azlet.dns_providers'],
     url='https://github.com/claasd/azlet',
     license='MIT',
@@ -30,6 +30,6 @@ setup(
         "azure-keyvault-secrets~=4.2",
         "azure-identity~=1.5",
         "azure-mgmt-dns~=8.0",
-        "pyopenssl~=20.0"
+        "pyopenssl"
     ]
 )
