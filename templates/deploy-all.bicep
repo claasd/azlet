@@ -1,12 +1,13 @@
 param dnsZoneName string
 param createKeyVault bool
-param keyVaultName string = take('kv-azlet-${uniqueString(resourceGroup().id)}',24)
+param keyVaultName string = take('kv-azlet-${uniqueString(resourceGroup().id)}', 24)
 param functionName string = 'func-azlet-${uniqueString(resourceGroup().id)}'
-param storageName string = take('stazlet${uniqueString(resourceGroup().id)}',24)
+param storageName string = take('stazlet${uniqueString(resourceGroup().id)}', 24)
+param location string = resourceGroup().location
 
-resource keyVault 'Microsoft.KeyVault/vaults@2021-06-01-preview' = if(createKeyVault) {
+resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' = if (createKeyVault) {
   name: keyVaultName
-  location: resourceGroup().location
+  location: location
   properties: {
     tenantId: subscription().tenantId
     accessPolicies: []
@@ -29,6 +30,6 @@ module deployFunction 'deploy-function.bicep' = {
     functionName: functionName
     keyVaultName: keyVault.name
     storageName: storageName
+    location: location
   }
-  
 }

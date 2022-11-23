@@ -6,12 +6,12 @@ param keyVaultRg string = resourceGroup().name
 param keyVaultSubscription string = subscription().subscriptionId
 param dnsSubscription string = subscription().subscriptionId
 param dnsRg string = resourceGroup().name
-
+param location string = resourceGroup().location
 
 
 resource storageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
   name: storageName
-  location: resourceGroup().location
+  location: location
   kind: 'StorageV2'
   sku: {
     name: 'Standard_LRS'
@@ -20,7 +20,7 @@ resource storageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
 
 resource appInsightsComponents 'Microsoft.Insights/components@2020-02-02-preview' = {
   name: 'appi-azlet'
-  location: resourceGroup().location
+  location: location
   kind: 'web'
   properties: {
     Application_Type: 'web'
@@ -29,7 +29,7 @@ resource appInsightsComponents 'Microsoft.Insights/components@2020-02-02-preview
 
 resource azureFunction 'Microsoft.Web/sites@2020-12-01' = {
   name: functionName
-  location: resourceGroup().location
+  location: location
   kind: 'functionapp,linux'
   identity: {
     type: 'SystemAssigned'
@@ -38,8 +38,8 @@ resource azureFunction 'Microsoft.Web/sites@2020-12-01' = {
     reserved: true
     httpsOnly: true
     siteConfig: {
-      linuxFxVersion : 'python|3.8'
-      pythonVersion: '3.8'
+      linuxFxVersion : 'python|3.9'
+      pythonVersion: '3.9'
       appSettings: [
         {
           name: 'AzureWebJobsDashboard'
@@ -51,7 +51,7 @@ resource azureFunction 'Microsoft.Web/sites@2020-12-01' = {
         }
         {
           name: 'FUNCTIONS_EXTENSION_VERSION'
-          value: '~3'
+          value: '~4'
         }
         {
           name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
@@ -81,7 +81,6 @@ resource azureFunction 'Microsoft.Web/sites@2020-12-01' = {
     }
   }
 }
-
 
 
 module dnsZoneRoleAssignment 'assign-role-to-zone.bicep' = {

@@ -1,7 +1,7 @@
 param keyVaultName string
 param principalId string
 
-resource keyVaultAccess 'Microsoft.KeyVault/vaults/accessPolicies@2021-06-01-preview' = {
+resource keyVaultAccess 'Microsoft.KeyVault/vaults/accessPolicies@2022-07-01' = {
   name: '${keyVaultName}/add'
   properties: {
     accessPolicies: [
