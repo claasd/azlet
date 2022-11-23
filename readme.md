@@ -29,3 +29,21 @@ python -m azlet rotate --keyvault-name my-vault --dns-zone dns.zone.com --dns-su
 ```
 
 see `python -m azlet -h` fro a full list of commands. 
+
+# Azure Function for auto-rotation
+
+## infrastructure 
+In `templates` there are bicep templates that create a python azure function.
+Use `function.bicep` if you aready have a dns-zone and an key-vault. If you have nothing, you can use `all.bicep`. 
+Example: 
+```
+az deployment group create -g rg-dns -f templates/deploy-function.bicep --parameters keyVaultName=kv-my-keyvault dnsZoneName=test.org functionName=func-my-cert-rotation
+```
+This will create the azure function with a managed identity, give the function identity access to the keyvault and add the function identity as zone contributor to the DNS zone.
+
+## function
+if `function` there is a python function that calls the rotate operation every night using a timer-trigger.
+Deploy it to your function using the following command (inside the `function` folder):
+```
+func azure functionapp publish func-my-cert-rotation --python
+```
