@@ -100,3 +100,5 @@ module keyVaultAccessAssignment 'assign-access-to-kv.bicep' = {
    principalId: azureFunction.identity.principalId
  }
 }
+
+output functionName string = functionName
