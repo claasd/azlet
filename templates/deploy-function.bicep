@@ -7,7 +7,7 @@ param keyVaultSubscription string = subscription().subscriptionId
 param dnsSubscription string = subscription().subscriptionId
 param dnsRg string = resourceGroup().name
 param location string = resourceGroup().location
-
+param pythonVersion = '3.12'
 
 resource storageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
   name: storageName
@@ -38,8 +38,8 @@ resource azureFunction 'Microsoft.Web/sites@2020-12-01' = {
     reserved: true
     httpsOnly: true
     siteConfig: {
-      linuxFxVersion : 'python|3.9'
-      pythonVersion: '3.9'
+      linuxFxVersion : 'python|${pythonVersion}'
+      pythonVersion: pythonVersion
       appSettings: [
         {
           name: 'AzureWebJobsDashboard'
