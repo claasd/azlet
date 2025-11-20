@@ -1,3 +1,8 @@
+# End of live notice
+This system is no longer maintained. It is recomendet to swithc to https://github.com/shibayan/keyvault-acmebot
+
+
+
 # azlet : Azure lets encrypt library
 
 [![PyPI - License](https://img.shields.io/pypi/l/azlet)](https://pypi.org/project/azlet/)
